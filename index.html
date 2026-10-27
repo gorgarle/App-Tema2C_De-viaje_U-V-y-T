@@ -42,7 +42,7 @@ button.on,button.pri{background:var(--c);color:#fff}
 .un{font:bold 1.4rem Georgia,serif}
 </style></head><body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
-<symbol id="fk" viewBox="0 0 56 25"><rect x="1" y="1" width="54" height="23" rx="3" fill="#4b5563" stroke="#1f2937"/><path d="M5 5H51M5 20H51" stroke="#fff" stroke-width="1.4"/><text x="28" y="16" text-anchor="middle" font-size="11" font-weight="bold" font-family="Arial,sans-serif" fill="#fde68a">20 km</text></symbol>
+<symbol id="fk" viewBox="0 0 56 25"><rect x="1" y="1" width="54" height="23" rx="3" fill="#4b5563" stroke="#1f2937"/><path d="M5 5H51M5 20H51" stroke="#fff" stroke-width="1.4"/><text x="28" y="16" text-anchor="middle" font-size="11" font-weight="bold" font-family="Arial,sans-serif" fill="#fde68a">10 km</text></symbol>
 </defs></svg>
 <main>
 <h1>🚗 De viaje</h1>
@@ -51,7 +51,7 @@ button.on,button.pri{background:var(--c);color:#fff}
 <div id="app"></div>
 </main>
 <script>
-var P=[['coche','🚗',4,6],['autobús','🚌',3,5],['tren','🚆',5,7],['camión','🚚',3,4]];
+var P=[['coche','🚗',8,12],['autobús','🚌',6,10],['tren','🚆',9,12],['camión','🚚',6,9]];
 var S={lv:1,lt:{},ord:[],mode:'mix',ok:0,streak:0,ch:null,c:[],pool:0,ans:0,done:false,rA:false,rB:null};
 var $=function(i){return document.getElementById(i)};
 var NM={T:'Kilómetros en total',U:'Kilómetros por hora',V:'Horas'};
@@ -64,8 +64,10 @@ function lc(){return S.lv==1?'':'<p style="margin:.2rem 0">'+(S.rL?'✓':'✗')+
 function init(){var h=S.ch,i;S.c=[];S.pool=h.T;
 if(h.m=='u')for(i=0;i<h.V;i++)S.c.push(0);
 if(h.m=='t'){for(i=0;i<h.V;i++)S.c.push(h.U);S.pool=0}}
+var H=[];
+function pair(f){var r,k,i=0;do{r=f();k=r[0]+'x'+r[1];i++}while((H.indexOf(k)>=0||r[0]==r[1])&&i<40);H.push(k);if(H.length>10)H.shift();return r}
 function next(){
-var m=S.mode=='mix'||S.mode=='sl'?['u','v','t'][R(0,2)]:S.mode,p=P[R(0,P.length-1)],U=R(p[2],p[3]),V=R(2,Math.min(10,7+Math.floor(S.ok/2)));
+var m=S.mode=='mix'||S.mode=='sl'?['u','v','t'][R(0,2)]:S.mode,p=P[R(0,P.length-1)],r=pair(function(){var u=R(p[2],p[3]);return [u,R(2,Math.min(8,Math.floor(70/u)))]}),U=r[0],V=r[1];
 S.ch={m:m,U:U,V:V,T:U*V,p:p};S.done=false;S.lt={};S.ord=['T','U','V'].sort(function(){return Math.random()-.5});S.ans=0;init();draw()}
 function move(f,j){if(f<0){if(S.pool<=0)return;S.pool--}else{if(S.c[f]<=0)return;S.c[f]--}S.c[j]++}
 function drop(s,el){var f=s=='p'?-1:+s,t=el&&el.closest?el.closest('[data-can],#pool,#newc'):null;
@@ -85,11 +87,11 @@ function addCan(){if(!S.done){S.c.push(0);draw()}}
 function delCan(){if(S.done||!S.c.length)return;S.pool+=S.c.pop();draw()}
 function reset(){init();draw()}
 function st(d){S.ans=Math.max(0,Math.min(999,S.ans+d));$('an').textContent=S.ans||'?'}
-function chk(){var h=S.ch,m=h.m,e=m=='u'?h.U*20:m=='v'?h.V:h.T*20,c0=S.c[0];
+function chk(){var h=S.ch,m=h.m,e=m=='u'?h.U*10:m=='v'?h.V:h.T*10,c0=S.c[0];
 S.rA=S.ans==e;
 S.rB=m=='u'?(S.pool==0&&S.c.every(function(x){return x==c0})):m=='v'?(S.pool==0&&S.c.length==h.V&&S.c.every(function(x){return x==h.U})):null;
 S.rL=['T','U','V'].every(function(k){return S.lt[k]==k});S.done=true;if(S.rA&&S.rB!==false&&(S.lv==1||S.rL)){S.ok++;S.streak++}else S.streak=0;draw()}
-function draw(){var h=S.ch,m=h.m,q={u:'U',v:'V',t:'T'}[m],U=h.U*20,T=h.T*20,e={u:U,v:h.V,t:T}[m],g=h.p,em='🕐',o='',a=S.rA,b=S.rB,good=a&&b!==false&&(S.lv==1||S.rL);
+function draw(){var h=S.ch,m=h.m,q={u:'U',v:'V',t:'T'}[m],U=h.U*10,T=h.T*10,e={u:U,v:h.V,t:T}[m],g=h.p,em='🕐',o='',a=S.rA,b=S.rB,good=a&&b!==false&&(S.lv==1||S.rL);
 var vals={U:U+' km/h',V:h.V+' h',T:T+' km'};
 if(S.lv==1||S.done)o+='<div class="chips">'+['T','U','V'].map(function(k){return '<div class="chip'+(k==q?' q':'')+'"><small>'+{T:'kilómetros en total',U:'kilómetros por hora',V:'horas'}[k]+'</small>'+k+' = '+(k==q&&!S.done?'?':vals[k])+'</div>'}).join('')+'</div>';
 var pool='<div class="pool" id="pool">'+(S.pool?fi(S.pool,'p'):'<span class="sc">'+(m=='t'?'Cuentakilómetros: aquí van los trozos de camino que saques':'Kilómetros')+'</span>')+'</div>';
@@ -104,7 +106,7 @@ if(!S.done){var sp={u:[100,10],v:[1],t:[100,10]}[m],bt=function(d){return '<butt
 o+='<p style="margin:0 0 .4rem">'+(S.lv==1?'¿Cuánto vale <b>'+q+'</b>?':'Tu respuesta:')+''+{u:' (km/h)',v:' (horas)',t:' (km en total)'}[m]+'</p><div class="ans">'+sp.map(function(s){return bt(-s)}).join('')+'<output id="an">'+(S.ans||'?')+'</output>'+sp.slice().reverse().map(bt).join('')+'<span class="un">'+(m=='v'?'h':m=='u'?'km/h':'km')+'</span></div><div class="ctl"><button class="pri" onclick="chk()">Terminar</button></div><p class="sc">Cuando creas que lo tienes, escribe la respuesta y pulsa Terminar.</p>'}
 else{o+='<p class="msg '+(good?'ok':'bad')+'">'+(good?'¡Muy bien!':'Esta vez no ha salido. Fíjate en la explicación.')+'</p>';
 if(b!==null)o+='<p style="margin:.2rem 0">'+(b?'✓':'✗')+' Reparto de los kilómetros'+(b?'':m=='u'?': no hay los mismos kilómetros en cada hora, o quedan kilómetros sin colocar':': tendría que haber '+h.V+' horas con '+h.U+' trozos de camino cada una')+'</p>';
-o+=lc()+'<p style="margin:.2rem 0">'+(a?'✓':'✗')+' Respuesta: '+q+' = '+e+(m=='v'?' h':m=='u'?' km/h':' km')+(a?'':' (tú pusiste '+(S.ans||'nada')+')')+'</p><div class="eq">U × V = T → '+U+' km/h × '+h.V+' h = '+T+' km</div><p style="margin:.2rem 0">A '+U+' km/h, en '+h.V+' horas se recorren '+T+' km.</p><p style="margin:.2rem 0">Cada trozo de camino son 20 km: '+h.U+' trozos × '+h.V+' horas = '+h.T+' trozos = '+T+' km.</p>'+(m=='t'?'':'<p style="margin:.2rem 0">'+(m=='u'?T+' km ÷ '+h.V+' h = '+U+' km/h':T+' km ÷ '+U+' km/h = '+h.V+' horas')+' porque '+U+' × '+h.V+' = '+T+'.</p>')+'<div class="row">'+Array(h.V+1).join('<span class="it"><span class="em">'+em+'</span><small>1 hora</small><span class="bx">'+fi(h.U,null)+'</span></span>')+'</div><div class="ctl"><button class="pri" onclick="next()">Siguiente ▶</button></div>'}
+o+=lc()+'<p style="margin:.2rem 0">'+(a?'✓':'✗')+' Respuesta: '+q+' = '+e+(m=='v'?' h':m=='u'?' km/h':' km')+(a?'':' (tú pusiste '+(S.ans||'nada')+')')+'</p><div class="eq">'+(m=='t'?'T = U × V → '+U+' km/h × '+h.V+' h = '+T+' km':m=='u'?'U = T ÷ V → '+T+' km ÷ '+h.V+' h = '+U+' km/h':'V = T ÷ U → '+T+' km ÷ '+U+' km/h = '+h.V+' horas')+'</div><p style="margin:.2rem 0">A '+U+' km/h, en '+h.V+' horas se recorren '+T+' km.</p><p style="margin:.2rem 0">Cada trozo de camino son 10 km: '+h.U+' trozos × '+h.V+' horas = '+h.T+' trozos = '+T+' km.</p>'+(m=='t'?'':'<p style="margin:.2rem 0">Comprobación con la multiplicación: U × V = T → '+U+' km/h × '+h.V+' h = '+T+' km.</p>')+'<div class="row">'+Array(h.V+1).join('<span class="it"><span class="em">'+em+'</span><small>1 hora</small><span class="bx">'+fi(h.U,null)+'</span></span>')+'</div><div class="ctl"><button class="pri" onclick="next()">Siguiente ▶</button></div>'}
 $('app').innerHTML=o+'</div>';
 $('tabs').innerHTML=[['mix','🎲 Mezcla'],['u','Busca U'],['v','Busca V'],['t','Busca T'],['sl','🔍 Sin letras']].map(function(x){return '<button class="'+(S.mode==x[0]?'on':'')+'" onclick="setMode(\''+x[0]+'\')">'+x[1]+'</button>'}).join('');
 $('sc').textContent='Aciertos: '+S.ok+' · Racha: '+S.streak}
